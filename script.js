@@ -225,7 +225,7 @@ row.innerHTML = `
       <span class="race-subtext" style="font-size:0.8rem; color:#aaa;">${race}</span>
     </a>
   </td>
-  <td><a href="player.html?id=${p.id}" class="row-link">${p.rating}</a></td>
+  <td><a href="player.html?id=${p.id}" class="row-link">${Math.round(p.rating)}</a></td>
   <td><a href="player.html?id=${p.id}" class="row-link">${p.mu.toFixed(2)}</a></td>
   <td><a href="player.html?id=${p.id}" class="row-link">${p.sigma.toFixed(2)}</a></td>
   <td><a href="player.html?id=${p.id}" class="row-link">${p.wins}-${p.losses}</a></td>
