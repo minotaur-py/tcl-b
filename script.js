@@ -30,7 +30,7 @@ async function getCurrentSeason() {
     }
   }
 
-  // 🔥 BACKWARD-COMPATIBLE RETURN
+  //  BACKWARD-COMPATIBLE RETURN
   // Old code expects a number → keep it
   // New code wants extra info → include it
   return Object.assign(
@@ -110,7 +110,7 @@ function formatDate(ts) {
     day: "numeric"
   });
 
-  // Ensure month is capitalized: "jan 5" → "Jan 5"
+  
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
@@ -173,6 +173,38 @@ if (seasonLabelEl) {
 
 };
 
+
+function ratingToIcon(rating) {
+  
+  let bucket;
+  if (rating <= 399) bucket = 0;
+  else if (rating <= 849) bucket = 1;
+  else if (rating <= 1999) bucket = 2;
+  else if (rating <= 2999) bucket = 3;
+  else if (rating <= 3999) bucket = 4;
+  else if (rating <= 4999) bucket = 5;
+  else if (rating <= 5999) bucket = 6;
+  else if (rating <= 6999) bucket = 7;
+  else if (rating <= 7999) bucket = 8;
+  else if (rating <= 8999) bucket = 9;
+  else if (rating <= 10499) bucket = 10;
+  else if (rating <= 11999) bucket = 11;
+  else if (rating <= 14499) bucket = 12;
+  else bucket = 13;
+
+  
+  if (bucket <= 1) return "icons/d1.jpg";
+  if (bucket === 2) return "icons/d2.jpg";
+  if (bucket === 3) return "icons/d3.jpg";
+
+  if (bucket >= 4 && bucket <= 6) return `icons/c${bucket - 3}.jpg`;
+  if (bucket >= 7 && bucket <= 9) return `icons/b${bucket - 6}.jpg`;
+  if (bucket >= 10 && bucket <= 12) return `icons/a${bucket - 9}.jpg`;
+
+  return "icons/s.jpg";
+}
+
+
 // Fill popup panel
 
 
@@ -185,14 +217,14 @@ if (seasonLabelEl) {
 const allPlayers = Object.entries(ratings).map(([id, v]) => {
   const [games, mu, sigma, wins, pCount, tCount, zCount, rCount, ts] = v;
 
-  const rating = v[21];   // ★ NEW: your new rating value from index 21
+  const rating = v[21];   
 
   const losses = games - wins;
   return { 
     id, games, mu, sigma, wins, losses,
     races: [pCount, zCount, tCount, rCount],
     ts,
-    rating            // ★ include it in player object
+    rating            
   };
 });
 
@@ -204,37 +236,71 @@ const allPlayers = Object.entries(ratings).map(([id, v]) => {
   // Assign ranks
   eligiblePlayers.forEach((p, idx) => p.rank = idx + 1);
 
-  // Render rows
-  tbody.innerHTML = ""; // clear existing
-  eligiblePlayers.forEach(p => {
-    const race = mostPlayedRace(p.races);
-    const playerName = names[p.id] || p.id;
+// Render rows
+tbody.innerHTML = ""; // clear existing
 
-const row = document.createElement("tr");
-row.classList.add("clickable");
+eligiblePlayers.forEach(p => {
+  const race = mostPlayedRace(p.races);
+  const playerName = names[p.id] || p.id;
 
-row.innerHTML = `
-  <td>
-    <a href="player.html?id=${p.id}" class="row-link">
-      ${p.rank}
-    </a>
-  </td>
-  <td>
-    <a href="player.html?id=${p.id}" class="row-link">
-      <span class="player-name" style="color:#89CFF0; font-size:1.2rem;">${playerName}</span><br>
-      <span class="race-subtext" style="font-size:0.8rem; color:#aaa;">${race}</span>
-    </a>
-  </td>
-  <td><a href="player.html?id=${p.id}" class="row-link">${Math.round(p.rating)}</a></td>
-  <td><a href="player.html?id=${p.id}" class="row-link">${p.mu.toFixed(2)}</a></td>
-  <td><a href="player.html?id=${p.id}" class="row-link">${p.sigma.toFixed(2)}</a></td>
-  <td><a href="player.html?id=${p.id}" class="row-link">${p.wins}-${p.losses}</a></td>
-  <td><a href="player.html?id=${p.id}" class="row-link">${timeAgo(p.ts)}</a></td>
-`;
+  const row = document.createElement("tr");
+  row.classList.add("clickable");
 
+  row.innerHTML = `
+    <!-- Left gutter column -->
+    <td></td>
 
-tbody.appendChild(row);
-  });
+    
+    <td>
+      <a href="player.html?id=${p.id}" class="row-link">
+        ${p.rank}
+      </a>
+    </td>
+
+    
+    <td class="player-cell">
+      <a href="player.html?id=${p.id}" class="row-link">
+        <span class="player-name">${playerName}</span><br>
+        <span class="race-subtext">${race}</span>
+      </a>
+    </td>
+
+   
+    <td>
+      <a href="player.html?id=${p.id}" class="row-link rating-cell">
+        <img
+          src="${ratingToIcon(p.rating)}"
+          alt=""
+          class="rating-icon"
+        >
+        <span>${p.rating}</span>
+      </a>
+    </td>
+
+    
+    <td>
+      <a href="player.html?id=${p.id}" class="row-link">
+        ${p.mu.toFixed(0)}
+      </a>
+    </td>
+
+    
+    <td>
+      <a href="player.html?id=${p.id}" class="row-link">
+        ${p.wins}-${p.losses}
+      </a>
+    </td>
+
+    
+    <td>
+      <a href="player.html?id=${p.id}" class="row-link">
+        ${timeAgo(p.ts)}
+      </a>
+    </td>
+  <td></td> `;
+
+  tbody.appendChild(row);
+});
 
   // Update last updated timestamp
 const lastUpdatedEl = document.getElementById("last-updated");
